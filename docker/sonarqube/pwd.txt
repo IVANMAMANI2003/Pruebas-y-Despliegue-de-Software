@@ -1,0 +1,9 @@
+#acceder
+sonar/admin
+sonar
+
+Token:
+squ_190b1bf50380e87c2ec68caaa9bf70530408b66a
+
+Token sonar
+squ_3821598cf166b4775d50b9ca553a07f297a18850
