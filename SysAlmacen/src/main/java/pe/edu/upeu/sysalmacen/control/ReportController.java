@@ -1,30 +1,26 @@
 package pe.edu.upeu.sysalmacen.control;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.List;
-
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
-
 import lombok.RequiredArgsConstructor;
+import org.cloudinary.json.JSONObject;
+import org.hibernate.query.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import pe.edu.upeu.sysalmacen.dtos.ProductoDTO;
 import pe.edu.upeu.sysalmacen.dtos.report.ProdMasVendidosDTO;
 import pe.edu.upeu.sysalmacen.modelo.MediaFile;
 import pe.edu.upeu.sysalmacen.servicio.IMediaFileService;
 import pe.edu.upeu.sysalmacen.servicio.IProductoService;
 
-
+import java.io.File;
+import java.io.FileOutputStream;
+import java.util.List;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @RestController
@@ -39,80 +35,49 @@ public class ReportController {
     }
 
     @GetMapping(value = "/generateReport", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public ResponseEntity<byte[]> generateReport() throws ReportProcessingException {
-        try {
-            byte[] data = productoService.generateReport();
-            return ResponseEntity.ok(data);
-        } catch (Exception e) {
-            throw new ReportProcessingException("Error generating report", e);
-        }
+    //APPLICATION_PDF_VALUE APPLICATION_OCTET_STREAM_VALUE
+    public ResponseEntity<byte[]> generateReport() throws Exception{
+        byte[] data = productoService.generateReport();
+        return ResponseEntity.ok(data);
+        /*return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"reporte.pdf\"")
+        .contentType(MediaType.APPLICATION_PDF)
+        .body(data);*/
     }
 
     @GetMapping(value = "/readFile/{idFile}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public ResponseEntity<byte[]> readFile(@PathVariable("idFile") Long idFile) throws ReportProcessingException {
-        try {
-            byte[] data = mfService.findById(idFile).getContent();
-            return ResponseEntity.ok(data);
-        } catch (Exception e) {
-            throw new ReportProcessingException("Error reading file with ID: " + idFile, e);
-        }
+    public ResponseEntity<byte[]> readFile(@PathVariable("idFile") Long idFile) throws Exception {
+        byte[] data = mfService.findById(idFile).getContent();
+        return ResponseEntity.ok(data);
     }
-
     @PostMapping(value = "/saveFile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Void> saveFile(@RequestParam("file") MultipartFile multipartFile) throws ReportProcessingException {
-        try {
-            MediaFile mf = new MediaFile();
-            mf.setContent(multipartFile.getBytes());
-            mf.setFileName(multipartFile.getOriginalFilename());
-            mf.setFileType(multipartFile.getContentType());
-            mfService.save(mf);
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            throw new ReportProcessingException("Error saving file to database", e);
-        }
+    public ResponseEntity<Void> saveFile(@RequestParam("file") MultipartFile multipartFile) throws Exception {
+        //DB
+        MediaFile mf = new MediaFile();
+        mf.setContent(multipartFile.getBytes());
+        mf.setFileName(multipartFile.getOriginalFilename());
+        mf.setFileType(multipartFile.getContentType());
+        mfService.save(mf);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping(value = "/saveFileCloud", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-public ResponseEntity<Void> saveFileCloud(@RequestParam("file") MultipartFile multipartFile) throws ReportProcessingException {
-    try {
+    public ResponseEntity<Void> saveFileCloud(@RequestParam("file") MultipartFile multipartFile) throws Exception {
+    //Repo Externo / Cloudinary
         File f = this.convertToFile(multipartFile);
-        cloudinary.uploader().upload(f, ObjectUtils.asMap("resource_type", "auto")); // Eliminada la variable "response"
+        Map<String, Object> response = cloudinary.uploader().upload(f, ObjectUtils.asMap("resource_type", "auto"));
+        JSONObject json = new JSONObject(response);
+        String url = json.getString("url");
+        System.out.println(url);
+        //service.updatePhoto(url);
         return ResponseEntity.ok().build();
-    } catch (Exception e) {
-        throw new ReportProcessingException("Error saving file to Cloudinary", e);
     }
-}
-    private File convertToFile(MultipartFile file) throws ReportProcessingException {
-        try {
-            File convFile = new File(file.getOriginalFilename());
-            try (FileOutputStream fos = new FileOutputStream(convFile)) {
-                fos.write(file.getBytes());
-            }
-            return convFile;
-        } catch (IOException e) {
-            throw new ReportProcessingException("Error converting MultipartFile to File", e);
-        }
+    private File convertToFile(MultipartFile multipartFile) throws Exception {
+        File file = new File(multipartFile.getOriginalFilename());
+        FileOutputStream outputStream = new FileOutputStream(file);
+        outputStream.write(multipartFile.getBytes());
+        outputStream.close();
+        return file;
     }
 
-
-    
-public class FileProcessingException extends RuntimeException {
-    public FileProcessingException(String message) {
-        super(message);
-    }
-
-    public FileProcessingException(String message, Throwable cause) {
-        super(message, cause);
-    }
-}
-public class ReportProcessingException extends RuntimeException {
-    public ReportProcessingException(String message) {
-        super(message);
-    }
-
-    public ReportProcessingException(String message, Throwable cause) {
-        super(message, cause);
-    }
-}
 
 }

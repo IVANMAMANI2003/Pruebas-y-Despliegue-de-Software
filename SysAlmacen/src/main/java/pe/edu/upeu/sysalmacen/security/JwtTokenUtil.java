@@ -1,5 +1,14 @@
 package pe.edu.upeu.sysalmacen.security;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
+
+import javax.crypto.SecretKey;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
@@ -7,25 +16,14 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import javax.crypto.SecretKey;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Component;
-
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
-
 //Clase S1
 @Component
 public class JwtTokenUtil implements Serializable {
 
-    private static final long JWT_TOKEN_VALIDITY = 5L * 60 * 60 * 1000;
+    private final long JWT_TOKEN_VALIDITY = 5 * 60 * 60 * 1000; //5 horas
     //private final long JWT_TOKEN_VALIDITY = 6000; //6 segundos
 
-    @Value("${jwt.secret}") 
+    @Value("${jwt.secret}") //Expression Language ${}
     private String secret;
 
     //Agregando data al Payload

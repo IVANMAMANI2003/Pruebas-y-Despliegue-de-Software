@@ -1,6 +1,7 @@
 package pe.edu.upeu.sysalmacen.dtos;
 
-
+import jakarta.persistence.Column;
+import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;

@@ -2,7 +2,6 @@ package pe.edu.upeu.sysalmacen.mappers;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-
 import pe.edu.upeu.sysalmacen.dtos.UsuarioDTO;
 import pe.edu.upeu.sysalmacen.modelo.Usuario;
 

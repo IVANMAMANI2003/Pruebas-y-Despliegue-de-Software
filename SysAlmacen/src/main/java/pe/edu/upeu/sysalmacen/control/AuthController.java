@@ -1,31 +1,25 @@
 package pe.edu.upeu.sysalmacen.control;
 
-import java.net.URI;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import pe.edu.upeu.sysalmacen.dtos.UsuarioDTO;
 import pe.edu.upeu.sysalmacen.security.JwtTokenUtil;
 import pe.edu.upeu.sysalmacen.security.JwtUserDetailsService;
 import pe.edu.upeu.sysalmacen.servicio.IUsuarioService;
 
+import java.net.URI;
 
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/users")
 public class AuthController {
-    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
-
     private final IUsuarioService userService;
     private final JwtTokenUtil jwtTokenUtil;
     private final JwtUserDetailsService jwtUserDetailsService;
@@ -39,10 +33,12 @@ public class AuthController {
     }
     @PostMapping("/register")
     public ResponseEntity<UsuarioDTO> register(@RequestBody @Valid UsuarioDTO.UsuarioCrearDto user) {
-        logger.info("Passss....{}", user.getRol());
+        System.out.println("Passss...."+ user.rol());
         UsuarioDTO createdUser = userService.register(user);
-        final UserDetails userDetails = jwtUserDetailsService.loadUserByUsername(user.getUser());
+        final UserDetails userDetails = jwtUserDetailsService.loadUserByUsername(user.user());
         createdUser.setToken(jwtTokenUtil.generateToken(userDetails));
+        //createdUser.setClave("");
+        //createdUser.setToken(userAuthenticationProvider.createToken(createdUser));
         return ResponseEntity.created(URI.create("/users/" + createdUser.getUser())).body(createdUser);
     }
 }

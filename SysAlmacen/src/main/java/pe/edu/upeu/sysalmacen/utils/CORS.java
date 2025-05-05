@@ -1,26 +1,20 @@
 package pe.edu.upeu.sysalmacen.utils;
 
-import java.io.IOException;
-
+import jakarta.servlet.*;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import jakarta.servlet.Filter;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.FilterConfig;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class CORS implements Filter {
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        // No cleanup logic is required for this filter.
+        // TODO Auto-generated method stub
     }
     @Override
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
@@ -39,7 +33,7 @@ public class CORS implements Filter {
     }
     @Override
     public void destroy() {
-        // No cleanup logic is required for this filter.
+        // TODO Auto-generated method stub
     }
 }
 

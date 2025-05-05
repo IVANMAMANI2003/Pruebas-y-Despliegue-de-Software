@@ -2,7 +2,6 @@ package pe.edu.upeu.sysalmacen.mappers;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-
 import pe.edu.upeu.sysalmacen.dtos.VentCarritoDTO;
 import pe.edu.upeu.sysalmacen.modelo.VentCarrito;
 
@@ -13,4 +12,3 @@ public interface VentCarritoMapper  extends GenericMapper<VentCarritoDTO, VentCa
     VentCarrito toEntityFromCADTO(VentCarritoDTO.VentCarritoCADTO ventCarritoCrearDTO);
 
 }
-

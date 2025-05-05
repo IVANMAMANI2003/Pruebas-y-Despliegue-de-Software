@@ -1,14 +1,10 @@
 package pe.edu.upeu.sysalmacen.servicio.impl;
 
-import java.nio.CharBuffer;
-import java.util.Optional;
-
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import lombok.RequiredArgsConstructor;
 import pe.edu.upeu.sysalmacen.dtos.UsuarioDTO;
 import pe.edu.upeu.sysalmacen.excepciones.ModelNotFoundException;
 import pe.edu.upeu.sysalmacen.mappers.UsuarioMapper;
@@ -17,9 +13,13 @@ import pe.edu.upeu.sysalmacen.modelo.Usuario;
 import pe.edu.upeu.sysalmacen.modelo.UsuarioRol;
 import pe.edu.upeu.sysalmacen.repositorio.ICrudGenericoRepository;
 import pe.edu.upeu.sysalmacen.repositorio.IUsuarioRepository;
+import pe.edu.upeu.sysalmacen.repositorio.IUsuarioRolRepository;
 import pe.edu.upeu.sysalmacen.servicio.IRolService;
 import pe.edu.upeu.sysalmacen.servicio.IUsuarioRolService;
 import pe.edu.upeu.sysalmacen.servicio.IUsuarioService;
+
+import java.nio.CharBuffer;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -56,15 +56,15 @@ public class UsuarioServiceImp extends CrudGenericoServiceImp<Usuario, Long> imp
 
     @Override
     public UsuarioDTO register(UsuarioDTO.UsuarioCrearDto userDto) {
-        Optional<Usuario> optionalUser = repo.findOneByUser(userDto.getUser());
+        Optional<Usuario> optionalUser = repo.findOneByUser(userDto.user());
         if (optionalUser.isPresent()) {
             throw new ModelNotFoundException("Login already exists", HttpStatus.BAD_REQUEST);
         }
         Usuario user = userMapper.toEntityFromCADTO(userDto);
-        user.setClave(passwordEncoder.encode(CharBuffer.wrap(userDto.getClave())));
+        user.setClave(passwordEncoder.encode(CharBuffer.wrap(userDto.clave())));
         Usuario savedUser = repo.save(user);
         Rol r;
-        switch (userDto.getClave()){
+        switch (userDto.rol()){
             case "ADMIN":{
                 r=rolService.getByNombre(Rol.RolNombre.ADMIN).orElse(null);
             } break;
@@ -76,6 +76,11 @@ public class UsuarioServiceImp extends CrudGenericoServiceImp<Usuario, Long> imp
             } break;
         }
 
+        /*UsuarioRol u=new UsuarioRol();
+        u.setRol(r);
+        u.setUsuario(savedUser);
+        iurService.save(u);
+        */
 
         iurService.save(UsuarioRol.builder()
                 .usuario(savedUser)
